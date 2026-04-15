@@ -14,17 +14,31 @@
 
 </head>
 
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-800 font-sans text-white">
 
-<header class="bg-orange-500 text-white py-6 text-center">
 
-<h1 class="text-3xl font-bold">
+<!-- HEADER PROFISSIONAL -->
+<header class="bg-gray-900 text-white py-5 px-4 shadow-md">
+
+<div class="max-w-5xl mx-auto flex items-center gap-3">
+
+<div class="text-orange-500 text-3xl">
+🏠🛍️
+</div>
+
+<div>
+
+<h1 class="text-2xl font-bold">
 CasaeAchadosShopee
 </h1>
 
-<p class="text-sm mt-1">
+<p class="text-sm text-gray-300">
 Melhores achados da Shopee com desconto 🔥
 </p>
+
+</div>
+
+</div>
 
 </header>
 
@@ -33,7 +47,7 @@ Melhores achados da Shopee com desconto 🔥
 <section id="loginAdmin"
 class="max-w-md mx-auto px-4 mt-6 hidden">
 
-<div class="bg-white rounded-2xl shadow p-6 text-center">
+<div class="bg-gray-900 rounded-2xl shadow p-6 text-center">
 
 <h2 class="text-xl font-bold mb-4">
 Acesso Admin
@@ -42,7 +56,7 @@ Acesso Admin
 <input id="senha"
 type="password"
 placeholder="Digite a senha"
-class="border p-2 rounded w-full mb-3" />
+class="border p-2 rounded w-full mb-3 text-black" />
 
 <button onclick="verificarSenha()"
 class="bg-orange-500 text-white px-6 py-2 rounded-xl">
@@ -60,7 +74,7 @@ Entrar
 <section id="adminPanel"
 class="max-w-4xl mx-auto px-4 mt-6 hidden">
 
-<div class="bg-white rounded-2xl shadow p-6">
+<div class="bg-gray-900 rounded-2xl shadow p-6">
 
 <h2 class="text-xl font-bold mb-4">
 Painel Admin
@@ -68,19 +82,19 @@ Painel Admin
 
 <input id="nome"
 placeholder="Nome do produto"
-class="border p-2 rounded w-full mb-2" />
+class="border p-2 rounded w-full mb-2 text-black" />
 
 <input id="preco"
 placeholder="Preço"
-class="border p-2 rounded w-full mb-2" />
+class="border p-2 rounded w-full mb-2 text-black" />
 
 <input id="imagem"
 placeholder="URL da imagem"
-class="border p-2 rounded w-full mb-2" />
+class="border p-2 rounded w-full mb-2 text-black" />
 
 <input id="link"
 placeholder="Link afiliado Shopee"
-class="border p-2 rounded w-full mb-2" />
+class="border p-2 rounded w-full mb-2 text-black" />
 
 <button onclick="addProduto()"
 class="bg-orange-500 text-white px-6 py-2 rounded-xl">
@@ -140,7 +154,7 @@ const adminPanel = document.getElementById("adminPanel");
 let adminLogado = false;
 
 
-// ATALHO ADMIN (COMPUTADOR)
+// ATALHO ADMIN (PC)
 document.addEventListener("keydown", function(e){
 
 if(e.ctrlKey && e.altKey && e.key.toLowerCase()==="a"){
@@ -152,7 +166,7 @@ loginAdmin.classList.toggle("hidden");
 });
 
 
-// 🔐 ADMIN POR LINK SECRETO (CELULAR)
+// ADMIN POR LINK (CELULAR)
 const urlParams = new URLSearchParams(window.location.search);
 
 if(urlParams.get("painel") === "1579lz"){
@@ -202,7 +216,7 @@ const prod=doc.data();
 
 produtosContainer.innerHTML+=`
 
-<div class="bg-white rounded-2xl shadow hover:shadow-xl transition">
+<div class="bg-gray-900 rounded-2xl shadow hover:shadow-xl transition">
 
 <img src="${prod.imagem}" class="rounded-t-2xl" />
 
@@ -212,7 +226,7 @@ produtosContainer.innerHTML+=`
 ${prod.nome}
 </h2>
 
-<p class="text-green-600 font-bold mt-1">
+<p class="text-green-400 font-bold mt-1">
 ${prod.preco}
 </p>
 
