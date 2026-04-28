@@ -5,19 +5,16 @@ const SENHA_ADMIN = "Lezinho1579@";
 
 // FIREBASE CONFIG
 const firebaseConfig = {
-
 apiKey: "AIzaSyB_ykuegRpYthAQo1vIsGwMs2s6assUWok",
 authDomain: "casaeachadosshopee.firebaseapp.com",
 projectId: "casaeachadosshopee",
 storageBucket: "casaeachadosshopee.firebasestorage.app",
 messagingSenderId: "288736027823",
 appId: "1:288736027823:web:d2e6e208efb345f7af605a"
-
 };
 
 // iniciar firebase
 firebase.initializeApp(firebaseConfig);
-
 const db = firebase.firestore();
 
 // ELEMENTOS
@@ -27,41 +24,34 @@ const adminPanel = document.getElementById("adminPanel");
 
 let adminLogado = false;
 
-// ATALHO ADMIN (PC)
+// ATALHO ADMIN
 document.addEventListener("keydown", function(e){
 if(e.ctrlKey && e.altKey && e.key.toLowerCase()==="a"){
 loginAdmin.classList.toggle("hidden");
 }
 });
 
-// ADMIN POR LINK (CELULAR)
+// ADMIN LINK
 const urlParams = new URLSearchParams(window.location.search);
-
 if(urlParams.get("painel") === "1579lz"){
 loginAdmin.classList.remove("hidden");
 }
 
-// LOGIN ADMIN
+// LOGIN
 function verificarSenha(){
-
 const senha = document.getElementById("senha").value;
 
 if(senha === SENHA_ADMIN){
-
 adminLogado = true;
-
 loginAdmin.classList.add("hidden");
 adminPanel.classList.remove("hidden");
-
 renderProdutos();
-
 }else{
 alert("Senha incorreta");
 }
-
 }
 
-// LISTAR PRODUTOS
+// LISTAR
 function renderProdutos(){
 
 produtosContainer.innerHTML="Carregando...";
@@ -74,51 +64,46 @@ produtosContainer.innerHTML="";
 
 snapshot.forEach(doc=>{
 
-const prod=doc.data();
+const prod = doc.data();
+
+// 🔥 PROTEÇÃO CONTRA ERRO
+const nome = JSON.stringify(prod.nome);
+const preco = JSON.stringify(prod.preco);
+const imagem = JSON.stringify(prod.imagem);
+const link = JSON.stringify(prod.link);
 
 produtosContainer.innerHTML+=`
 
-<div class="bg-gray-900 rounded-2xl shadow hover:shadow-xl transition">
+<div class="bg-gray-900 rounded-2xl shadow">
 
-<img src="${prod.imagem}" class="rounded-t-2xl" />
+<img src=${imagem} class="rounded-t-2xl" />
 
 <div class="p-4">
 
-<h2 class="font-semibold">
-${prod.nome}
-</h2>
+<h2>${prod.nome}</h2>
 
-<p class="text-green-400 font-bold mt-1">
-${prod.preco}
-</p>
+<p class="text-green-400">${prod.preco}</p>
 
-<button onclick="abrirShopee('${prod.link}')"
-class="block w-full mt-3 bg-orange-500 text-white py-2 rounded-xl">
-
+<button onclick="abrirShopee(${link})"
+class="block w-full mt-3 bg-orange-500 py-2 rounded-xl">
 Abrir na Shopee 🛒
-
 </button>
 
 ${adminLogado ? `
 
-<button onclick='editarProduto("${doc.id}", "${prod.nome}", "${prod.preco}", "${prod.imagem}", "${prod.link}")'
-class="block w-full mt-2 bg-yellow-500 text-black py-2 rounded-xl">
-
-Editar produto ✏️
-
+<button onclick='editarProduto("${doc.id}", ${nome}, ${preco}, ${imagem}, ${link})'
+class="block w-full mt-2 bg-yellow-500 py-2 rounded-xl">
+Editar ✏️
 </button>
 
 <button onclick="excluirProduto('${doc.id}')"
-class="block w-full mt-2 bg-red-500 text-white py-2 rounded-xl">
-
-Excluir produto ❌
-
+class="block w-full mt-2 bg-red-500 py-2 rounded-xl">
+Excluir ❌
 </button>
 
 ` : ``}
 
 </div>
-
 </div>
 
 `;
@@ -126,10 +111,9 @@ Excluir produto ❌
 });
 
 });
-
 }
 
-// FUNÇÃO EDITAR (SÓ PREENCHE)
+// EDITAR
 function editarProduto(id, nome, preco, imagem, link){
 
 document.getElementById("nome").value = nome;
@@ -141,7 +125,7 @@ window.scrollTo({ top: 0, behavior: "smooth" });
 
 }
 
-// ADICIONAR PRODUTO (SEM ALTERAÇÃO)
+// ADD
 function addProduto(){
 
 const nome=document.getElementById("nome").value;
@@ -150,54 +134,32 @@ const imagem=document.getElementById("imagem").value;
 const link=document.getElementById("link").value;
 
 if(!nome||!preco||!imagem||!link){
-alert("Preencha todos os campos");
+alert("Preencha tudo");
 return;
 }
 
 db.collection("produtos").add({
-
-nome,
-preco,
-imagem,
-link,
+nome, preco, imagem, link,
 criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-
 });
 
-alert("Produto publicado online 🚀");
+alert("Produto publicado 🚀");
 
 }
 
-// EXCLUIR PRODUTO
+// EXCLUIR
 function excluirProduto(id){
-
-if(confirm("Deseja excluir este produto?")){
+if(confirm("Excluir?")){
 db.collection("produtos").doc(id).delete();
-alert("Produto excluído com sucesso");
+}
 }
 
-}
-
-// ABRIR SHOPEE
+// ABRIR
 function abrirShopee(link){
-
-const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-if(isMobile){
-
-window.location.href=link.replace("https://shopee.com.br","shopee://");
-
-setTimeout(()=>{
-window.open(link,"_blank");
-},1200);
-
-}else{
 window.open(link,"_blank");
 }
 
-}
-
-// carregar produtos
+// START
 renderProdutos();
 
 </script>
