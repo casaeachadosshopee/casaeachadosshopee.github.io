@@ -1,64 +1,23 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-<title>CasaeAchadosShopee</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-</head>
-
-<body class="bg-gray-800 text-white">
-
-<header class="bg-gray-900 py-5 px-4">
-<h1 class="text-2xl text-center font-bold">CasaeAchadosShopee</h1>
-</header>
-
-<!-- LOGIN -->
-<section id="loginAdmin" class="hidden text-center mt-6">
-<input id="senha" type="password" placeholder="Senha" class="text-black p-2 rounded">
-<button onclick="verificarSenha()" class="bg-orange-500 px-4 py-2 rounded">Entrar</button>
-</section>
-
-<!-- ADMIN -->
-<section id="adminPanel" class="hidden text-center mt-6">
-
-<input id="nome" placeholder="Nome" class="text-black p-2 m-1 rounded">
-<input id="preco" placeholder="Preço" class="text-black p-2 m-1 rounded">
-<input id="imagem" placeholder="Imagem URL" class="text-black p-2 m-1 rounded">
-<input id="link" placeholder="Link afiliado" class="text-black p-2 m-1 rounded">
-
-<!-- BOTÃO CORRETO -->
-<button id="btnSalvar" onclick="addProduto()"
-class="bg-orange-500 px-6 py-2 rounded-xl">
-Salvar Produto
-</button>
-
-</section>
-
-<!-- PRODUTOS -->
-<main id="produtos" class="p-4 grid md:grid-cols-3 gap-4"></main>
-
 <script>
 
-// SENHA
+// SENHA ADMIN
 const SENHA_ADMIN = "Lezinho1579@";
 
-// FIREBASE
+// FIREBASE CONFIG
 const firebaseConfig = {
+
 apiKey: "AIzaSyB_ykuegRpYthAQo1vIsGwMs2s6assUWok",
 authDomain: "casaeachadosshopee.firebaseapp.com",
 projectId: "casaeachadosshopee",
+storageBucket: "casaeachadosshopee.firebasestorage.app",
+messagingSenderId: "288736027823",
+appId: "1:288736027823:web:d2e6e208efb345f7af605a"
+
 };
 
+// iniciar firebase
 firebase.initializeApp(firebaseConfig);
+
 const db = firebase.firestore();
 
 // ELEMENTOS
@@ -66,147 +25,179 @@ const produtosContainer = document.getElementById("produtos");
 const loginAdmin = document.getElementById("loginAdmin");
 const adminPanel = document.getElementById("adminPanel");
 
-const nomeInput = document.getElementById("nome");
-const precoInput = document.getElementById("preco");
-const imagemInput = document.getElementById("imagem");
-const linkInput = document.getElementById("link");
-const btnSalvar = document.getElementById("btnSalvar");
-
 let adminLogado = false;
-let editandoId = null;
 
-// ATALHO ADMIN
-document.addEventListener("keydown", e=>{
-if(e.ctrlKey && e.altKey && e.key==="a"){
+// ATALHO ADMIN (PC)
+document.addEventListener("keydown", function(e){
+if(e.ctrlKey && e.altKey && e.key.toLowerCase()==="a"){
 loginAdmin.classList.toggle("hidden");
 }
 });
 
-// LOGIN
-function verificarSenha(){
-if(document.getElementById("senha").value===SENHA_ADMIN){
-adminLogado=true;
-loginAdmin.classList.add("hidden");
-adminPanel.classList.remove("hidden");
-renderProdutos();
-}
+// ADMIN POR LINK (CELULAR)
+const urlParams = new URLSearchParams(window.location.search);
+
+if(urlParams.get("painel") === "1579lz"){
+loginAdmin.classList.remove("hidden");
 }
 
-// LISTAR
+// LOGIN ADMIN
+function verificarSenha(){
+
+const senha = document.getElementById("senha").value;
+
+if(senha === SENHA_ADMIN){
+
+adminLogado = true;
+
+loginAdmin.classList.add("hidden");
+adminPanel.classList.remove("hidden");
+
+renderProdutos();
+
+}else{
+alert("Senha incorreta");
+}
+
+}
+
+// LISTAR PRODUTOS
 function renderProdutos(){
-db.collection("produtos").orderBy("criadoEm","desc")
+
+produtosContainer.innerHTML="Carregando...";
+
+db.collection("produtos")
+.orderBy("criadoEm","desc")
 .onSnapshot(snapshot=>{
 
 produtosContainer.innerHTML="";
 
 snapshot.forEach(doc=>{
-const p = doc.data();
 
-produtosContainer.innerHTML += `
-<div class="bg-gray-900 p-3 rounded">
+const prod=doc.data();
 
-<img src="${p.imagem}" class="rounded">
+produtosContainer.innerHTML+=`
 
-<h2>${p.nome}</h2>
+<div class="bg-gray-900 rounded-2xl shadow hover:shadow-xl transition">
 
-<p class="text-green-400">🔥 Ver oferta atual</p>
+<img src="${prod.imagem}" class="rounded-t-2xl" />
 
-<button onclick="window.open('${p.link}')"
-class="bg-orange-500 w-full py-2 mt-2 rounded">
-🛒 Comprar
+<div class="p-4">
+
+<h2 class="font-semibold">
+${prod.nome}
+</h2>
+
+<p class="text-green-400 font-bold mt-1">
+${prod.preco}
+</p>
+
+<button onclick="abrirShopee('${prod.link}')"
+class="block w-full mt-3 bg-orange-500 text-white py-2 rounded-xl">
+
+Abrir na Shopee 🛒
+
 </button>
 
 ${adminLogado ? `
-<button onclick='editarProduto(${JSON.stringify(doc.id)}, ${JSON.stringify(p.nome)}, ${JSON.stringify(p.preco)}, ${JSON.stringify(p.imagem)}, ${JSON.stringify(p.link)})'
-class="bg-yellow-500 w-full mt-2 py-2 rounded">
-Editar
+
+<button onclick='editarProduto("${doc.id}", "${prod.nome}", "${prod.preco}", "${prod.imagem}", "${prod.link}")'
+class="block w-full mt-2 bg-yellow-500 text-black py-2 rounded-xl">
+
+Editar produto ✏️
+
 </button>
 
 <button onclick="excluirProduto('${doc.id}')"
-class="bg-red-500 w-full mt-2 py-2 rounded">
-Excluir
+class="block w-full mt-2 bg-red-500 text-white py-2 rounded-xl">
+
+Excluir produto ❌
+
 </button>
+
 ` : ``}
 
 </div>
+
+</div>
+
 `;
 
 });
 
 });
+
 }
 
-// EDITAR
-function editarProduto(id,nome,preco,img,link){
+// FUNÇÃO EDITAR (SÓ PREENCHE)
+function editarProduto(id, nome, preco, imagem, link){
 
-nomeInput.value=nome;
-precoInput.value=preco;
-imagemInput.value=img;
-linkInput.value=link;
+document.getElementById("nome").value = nome;
+document.getElementById("preco").value = preco;
+document.getElementById("imagem").value = imagem;
+document.getElementById("link").value = link;
 
-editandoId=id;
+window.scrollTo({ top: 0, behavior: "smooth" });
 
-btnSalvar.innerText="Atualizar Produto ✏️";
-btnSalvar.classList.remove("bg-orange-500");
-btnSalvar.classList.add("bg-yellow-500");
-
-window.scrollTo({top:0,behavior:"smooth"});
 }
 
-// SALVAR
+// ADICIONAR PRODUTO (SEM ALTERAÇÃO)
 function addProduto(){
 
-const nome=nomeInput.value;
-const preco=precoInput.value;
-const imagem=imagemInput.value;
-const link=linkInput.value;
+const nome=document.getElementById("nome").value;
+const preco=document.getElementById("preco").value;
+const imagem=document.getElementById("imagem").value;
+const link=document.getElementById("link").value;
 
 if(!nome||!preco||!imagem||!link){
-alert("Preencha tudo");
+alert("Preencha todos os campos");
 return;
 }
 
-if(editandoId){
+db.collection("produtos").add({
 
-db.collection("produtos").doc(editandoId).update({
-nome,preco,imagem,link
+nome,
+preco,
+imagem,
+link,
+criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+
 });
 
-alert("Atualizado");
-editandoId=null;
+alert("Produto publicado online 🚀");
+
+}
+
+// EXCLUIR PRODUTO
+function excluirProduto(id){
+
+if(confirm("Deseja excluir este produto?")){
+db.collection("produtos").doc(id).delete();
+alert("Produto excluído com sucesso");
+}
+
+}
+
+// ABRIR SHOPEE
+function abrirShopee(link){
+
+const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+if(isMobile){
+
+window.location.href=link.replace("https://shopee.com.br","shopee://");
+
+setTimeout(()=>{
+window.open(link,"_blank");
+},1200);
 
 }else{
-
-db.collection("produtos").add({
-nome,preco,imagem,link,
-criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-});
-
-alert("Publicado");
+window.open(link,"_blank");
 }
-
-// limpar
-nomeInput.value="";
-precoInput.value="";
-imagemInput.value="";
-linkInput.value="";
-
-// voltar botão
-btnSalvar.innerText="Salvar Produto";
-btnSalvar.classList.remove("bg-yellow-500");
-btnSalvar.classList.add("bg-orange-500");
 
 }
 
-// EXCLUIR
-function excluirProduto(id){
-db.collection("produtos").doc(id).delete();
-}
-
-// INICIAR
+// carregar produtos
 renderProdutos();
 
 </script>
-
-</body>
-</html>
