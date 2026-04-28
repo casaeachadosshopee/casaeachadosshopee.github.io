@@ -1,16 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CasaeAchadosShopee</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- FIREBASE (CARREGA ANTES DE TUDO) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+</head>
+
+<body class="bg-gray-800 text-white font-sans">
+
+<header class="bg-gray-900 p-4 text-center text-xl font-bold">
+CasaeAchadosShopee 🔥
+</header>
+
+<!-- LOGIN -->
+<section id="loginAdmin" class="hidden text-center mt-6">
+<input id="senha" type="password" placeholder="Senha"
+class="text-black p-2 rounded">
+<button onclick="verificarSenha()"
+class="bg-orange-500 px-4 py-2 rounded">Entrar</button>
+</section>
+
+<!-- ADMIN -->
+<section id="adminPanel" class="hidden text-center mt-6">
+
+<input id="nome" placeholder="Nome"
+class="text-black p-2 m-1 rounded">
+<input id="preco" placeholder="Preço"
+class="text-black p-2 m-1 rounded">
+<input id="imagem" placeholder="Imagem URL"
+class="text-black p-2 m-1 rounded">
+<input id="link" placeholder="Link afiliado"
+class="text-black p-2 m-1 rounded">
+
+<button onclick="addProduto()"
+class="bg-orange-500 px-6 py-2 rounded">
+Salvar Produto
+</button>
+
+</section>
+
+<!-- PRODUTOS -->
+<main id="produtos" class="p-4 grid md:grid-cols-3 gap-4"></main>
+
+<footer class="text-center p-4 bg-black">
+© 2026 CasaeAchadosShopee
+</footer>
+
+<!-- SCRIPT SEM ERRO -->
 <script>
 
-// SENHA ADMIN
+// SENHA
 const SENHA_ADMIN = "Lezinho1579@";
 
 // FIREBASE
 const firebaseConfig = {
 apiKey: "AIzaSyB_ykuegRpYthAQo1vIsGwMs2s6assUWok",
 authDomain: "casaeachadosshopee.firebaseapp.com",
-projectId: "casaeachadosshopee",
-storageBucket: "casaeachadosshopee.firebasestorage.app",
-messagingSenderId: "288736027823",
-appId: "1:288736027823:web:d2e6e208efb345f7af605a"
+projectId: "casaeachadosshopee"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -24,33 +78,23 @@ const adminPanel = document.getElementById("adminPanel");
 let adminLogado = false;
 
 // ATALHO ADMIN
-document.addEventListener("keydown", function(e){
-if(e.ctrlKey && e.altKey && e.key.toLowerCase()==="a"){
+document.addEventListener("keydown", e=>{
+if(e.ctrlKey && e.altKey && e.key==="a"){
 loginAdmin.classList.toggle("hidden");
 }
 });
 
-// ADMIN LINK
-const urlParams = new URLSearchParams(window.location.search);
-if(urlParams.get("painel") === "1579lz"){
-loginAdmin.classList.remove("hidden");
-}
-
 // LOGIN
 function verificarSenha(){
-const senha = document.getElementById("senha").value;
-
-if(senha === SENHA_ADMIN){
-adminLogado = true;
+if(document.getElementById("senha").value===SENHA_ADMIN){
+adminLogado=true;
 loginAdmin.classList.add("hidden");
 adminPanel.classList.remove("hidden");
 renderProdutos();
-}else{
-alert("Senha incorreta");
 }
 }
 
-// LISTAR (SEM QUEBRAR)
+// LISTAR (SEM BUG)
 function renderProdutos(){
 
 db.collection("produtos")
@@ -61,74 +105,59 @@ produtosContainer.innerHTML="";
 
 snapshot.forEach(doc=>{
 
-const prod = doc.data();
+const p = doc.data();
 
-// CRIANDO ELEMENTOS (SEM innerHTML perigoso)
 const card = document.createElement("div");
-card.className = "bg-gray-900 rounded-2xl shadow";
+card.className = "bg-gray-900 p-3 rounded";
 
 const img = document.createElement("img");
-img.src = prod.imagem;
-img.className = "rounded-t-2xl";
-
-const box = document.createElement("div");
-box.className = "p-4";
+img.src = p.imagem;
 
 const nome = document.createElement("h2");
-nome.innerText = prod.nome;
+nome.innerText = p.nome;
 
 const preco = document.createElement("p");
 preco.className = "text-green-400";
-preco.innerText = prod.preco;
+preco.innerText = "🔥 Ver oferta atual";
 
-// botão shopee
 const btn = document.createElement("button");
-btn.innerText = "Abrir na Shopee 🛒";
-btn.className = "block w-full mt-3 bg-orange-500 py-2 rounded-xl";
-btn.onclick = ()=> abrirShopee(prod.link);
+btn.innerText = "🛒 Comprar";
+btn.className = "bg-orange-500 w-full py-2 mt-2 rounded";
+btn.onclick = ()=> window.open(p.link);
 
-box.appendChild(nome);
-box.appendChild(preco);
-box.appendChild(btn);
+card.appendChild(img);
+card.appendChild(nome);
+card.appendChild(preco);
+card.appendChild(btn);
 
 // BOTÕES ADMIN
 if(adminLogado){
 
-const editarBtn = document.createElement("button");
-editarBtn.innerText = "Editar ✏️";
-editarBtn.className = "block w-full mt-2 bg-yellow-500 py-2 rounded-xl";
-editarBtn.onclick = ()=> editarProduto(doc.id, prod);
+const editar = document.createElement("button");
+editar.innerText = "Editar ✏️";
+editar.className = "bg-yellow-500 w-full mt-2 py-2 rounded";
+editar.onclick = ()=>{
+document.getElementById("nome").value = p.nome;
+document.getElementById("preco").value = p.preco;
+document.getElementById("imagem").value = p.imagem;
+document.getElementById("link").value = p.link;
+window.scrollTo({top:0,behavior:"smooth"});
+};
 
-const excluirBtn = document.createElement("button");
-excluirBtn.innerText = "Excluir ❌";
-excluirBtn.className = "block w-full mt-2 bg-red-500 py-2 rounded-xl";
-excluirBtn.onclick = ()=> excluirProduto(doc.id);
+const excluir = document.createElement("button");
+excluir.innerText = "Excluir ❌";
+excluir.className = "bg-red-500 w-full mt-2 py-2 rounded";
+excluir.onclick = ()=> db.collection("produtos").doc(doc.id).delete();
 
-box.appendChild(editarBtn);
-box.appendChild(excluirBtn);
-
+card.appendChild(editar);
+card.appendChild(excluir);
 }
-
-card.appendChild(img);
-card.appendChild(box);
 
 produtosContainer.appendChild(card);
 
 });
 
 });
-}
-
-// EDITAR
-function editarProduto(id, prod){
-
-document.getElementById("nome").value = prod.nome;
-document.getElementById("preco").value = prod.preco;
-document.getElementById("imagem").value = prod.imagem;
-document.getElementById("link").value = prod.link;
-
-window.scrollTo({ top: 0, behavior: "smooth" });
-
 }
 
 // ADD
@@ -140,7 +169,7 @@ const imagem=document.getElementById("imagem").value;
 const link=document.getElementById("link").value;
 
 if(!nome||!preco||!imagem||!link){
-alert("Preencha todos os campos");
+alert("Preencha tudo");
 return;
 }
 
@@ -150,22 +179,12 @@ criadoEm: firebase.firestore.FieldValue.serverTimestamp()
 });
 
 alert("Produto publicado 🚀");
-
 }
 
-// EXCLUIR
-function excluirProduto(id){
-if(confirm("Deseja excluir?")){
-db.collection("produtos").doc(id).delete();
-}
-}
-
-// ABRIR
-function abrirShopee(link){
-window.open(link,"_blank");
-}
-
-// START
+// INICIAR
 renderProdutos();
 
 </script>
+
+</body>
+</html>
