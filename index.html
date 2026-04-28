@@ -1,9 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>CasaeAchadosShopee</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- FIREBASE (TEM QUE VIR ANTES DO SCRIPT PRINCIPAL) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+</head>
+
+<body class="bg-gray-800 font-sans text-white">
+
+<header class="bg-gray-900 text-white py-5 px-4 shadow-md">
+<div class="max-w-5xl mx-auto flex items-center gap-3">
+
+<img src="CasaeAchadosshopee.png"
+class="h-14 w-auto bg-white rounded-lg p-1 shadow">
+
+<div>
+<h1 class="text-2xl font-bold">CasaeAchadosShopee</h1>
+<p class="text-sm text-gray-300">Melhores achados da Shopee 🔥</p>
+</div>
+
+</div>
+</header>
+
+<!-- LOGIN -->
+<section id="loginAdmin" class="max-w-md mx-auto px-4 mt-6 hidden">
+<div class="bg-gray-900 rounded-2xl p-6 text-center">
+
+<input id="senha" type="password"
+placeholder="Senha"
+class="border p-2 rounded w-full mb-3 text-black" />
+
+<button onclick="verificarSenha()"
+class="bg-orange-500 px-6 py-2 rounded-xl">
+Entrar
+</button>
+
+</div>
+</section>
+
+<!-- ADMIN -->
+<section id="adminPanel" class="max-w-4xl mx-auto px-4 mt-6 hidden">
+<div class="bg-gray-900 rounded-2xl p-6">
+
+<input id="nome" placeholder="Nome"
+class="border p-2 rounded w-full mb-2 text-black" />
+
+<input id="preco" placeholder="Preço"
+class="border p-2 rounded w-full mb-2 text-black" />
+
+<input id="imagem" placeholder="Imagem URL"
+class="border p-2 rounded w-full mb-2 text-black" />
+
+<input id="link" placeholder="Link afiliado"
+class="border p-2 rounded w-full mb-2 text-black" />
+
+<button onclick="addProduto()"
+class="bg-orange-500 px-6 py-2 rounded-xl">
+Salvar Produto
+</button>
+
+</div>
+</section>
+
+<!-- PRODUTOS -->
+<main id="produtos"
+class="max-w-5xl mx-auto px-4 py-8 grid md:grid-cols-3 gap-6">
+</main>
+
+<footer class="bg-black text-center py-4">
+© 2026 CasaeAchadosShopee
+</footer>
+
 <script>
 
-// SENHA ADMIN
+// SENHA
 const SENHA_ADMIN = "Lezinho1579@";
 
-// FIREBASE CONFIG
+// FIREBASE
 const firebaseConfig = {
 apiKey: "AIzaSyB_ykuegRpYthAQo1vIsGwMs2s6assUWok",
 authDomain: "casaeachadosshopee.firebaseapp.com",
@@ -13,7 +94,6 @@ messagingSenderId: "288736027823",
 appId: "1:288736027823:web:d2e6e208efb345f7af605a"
 };
 
-// iniciar firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -25,16 +105,16 @@ const adminPanel = document.getElementById("adminPanel");
 let adminLogado = false;
 let editandoId = null;
 
-// ATALHO ADMIN
-document.addEventListener("keydown", function(e){
-if(e.ctrlKey && e.altKey && e.key.toLowerCase()==="a"){
+// ATALHO
+document.addEventListener("keydown", e=>{
+if(e.ctrlKey && e.altKey && e.key==="a"){
 loginAdmin.classList.toggle("hidden");
 }
 });
 
-// ADMIN POR LINK
-const urlParams = new URLSearchParams(window.location.search);
-if(urlParams.get("painel") === "1579lz"){
+// LINK ADMIN
+const params = new URLSearchParams(window.location.search);
+if(params.get("painel")==="1579lz"){
 loginAdmin.classList.remove("hidden");
 }
 
@@ -42,8 +122,8 @@ loginAdmin.classList.remove("hidden");
 function verificarSenha(){
 const senha = document.getElementById("senha").value;
 
-if(senha === SENHA_ADMIN){
-adminLogado = true;
+if(senha===SENHA_ADMIN){
+adminLogado=true;
 loginAdmin.classList.add("hidden");
 adminPanel.classList.remove("hidden");
 renderProdutos();
@@ -54,7 +134,6 @@ alert("Senha incorreta");
 
 // LISTAR
 function renderProdutos(){
-produtosContainer.innerHTML="Carregando...";
 
 db.collection("produtos")
 .orderBy("criadoEm","desc")
@@ -63,38 +142,34 @@ db.collection("produtos")
 produtosContainer.innerHTML="";
 
 snapshot.forEach(doc=>{
-const prod=doc.data();
 
-produtosContainer.innerHTML+=`
+const p = doc.data();
 
-<div class="bg-gray-900 rounded-2xl shadow hover:shadow-xl transition">
+produtosContainer.innerHTML += `
+<div class="bg-gray-900 rounded-2xl shadow">
 
-<img src="${prod.imagem}" class="rounded-t-2xl" />
+<img src="${p.imagem}" class="rounded-t-2xl">
 
 <div class="p-4">
 
-<h2 class="font-semibold">
-${prod.nome}
-</h2>
+<h2>${p.nome}</h2>
 
-<p class="text-green-400 font-bold mt-1">
-${prod.preco}
-</p>
+<p class="text-green-400 font-bold">${p.preco}</p>
 
-<button onclick="abrirShopee('${prod.link}')"
-class="block w-full mt-3 bg-orange-500 text-white py-2 rounded-xl">
-Abrir na Shopee 🛒
+<button onclick="abrirShopee('${p.link}')"
+class="w-full mt-2 bg-orange-500 py-2 rounded-xl">
+Ver na Shopee
 </button>
 
 ${adminLogado ? `
 
-<button onclick="editarProduto('${doc.id}', '${prod.nome}', '${prod.preco}', '${prod.imagem}', '${prod.link}')"
-class="block w-full mt-2 bg-yellow-500 text-black py-2 rounded-xl">
+<button onclick='editarProduto(${JSON.stringify(doc.id)}, ${JSON.stringify(p.nome)}, ${JSON.stringify(p.preco)}, ${JSON.stringify(p.imagem)}, ${JSON.stringify(p.link)})'
+class="w-full mt-2 bg-yellow-500 py-2 rounded-xl text-black">
 Editar ✏️
 </button>
 
 <button onclick="excluirProduto('${doc.id}')"
-class="block w-full mt-2 bg-red-500 text-white py-2 rounded-xl">
+class="w-full mt-2 bg-red-500 py-2 rounded-xl">
 Excluir ❌
 </button>
 
@@ -102,7 +177,6 @@ Excluir ❌
 
 </div>
 </div>
-
 `;
 
 });
@@ -111,94 +185,71 @@ Excluir ❌
 }
 
 // EDITAR
-function editarProduto(id, nome, preco, imagem, link){
+function editarProduto(id,nome,preco,img,link){
 
-document.getElementById("nome").value = nome;
-document.getElementById("preco").value = preco;
-document.getElementById("imagem").value = imagem;
-document.getElementById("link").value = link;
+document.getElementById("nome").value=nome;
+document.getElementById("preco").value=preco;
+document.getElementById("imagem").value=img;
+document.getElementById("link").value=link;
 
-editandoId = id;
-
-window.scrollTo({ top: 0, behavior: "smooth" });
-
+editandoId=id;
+window.scrollTo({top:0,behavior:"smooth"});
 }
 
-// ADD OU UPDATE
+// SALVAR
 function addProduto(){
 
-const nome=document.getElementById("nome").value;
-const preco=document.getElementById("preco").value;
-const imagem=document.getElementById("imagem").value;
-const link=document.getElementById("link").value;
+const nome=nomeInput.value;
+const preco=precoInput.value;
+const imagem=imagemInput.value;
+const link=linkInput.value;
 
 if(!nome||!preco||!imagem||!link){
-alert("Preencha todos os campos");
+alert("Preencha tudo");
 return;
 }
 
-// EDITANDO
 if(editandoId){
 
 db.collection("produtos").doc(editandoId).update({
-nome,
-preco,
-imagem,
-link
+nome,preco,imagem,link
 });
 
-alert("Produto atualizado ✅");
-editandoId = null;
+alert("Atualizado ✅");
+editandoId=null;
 
 }else{
 
-// NOVO
 db.collection("produtos").add({
-nome,
-preco,
-imagem,
-link,
+nome,preco,imagem,link,
 criadoEm: firebase.firestore.FieldValue.serverTimestamp()
 });
 
-alert("Produto publicado 🚀");
+alert("Publicado 🚀");
 }
 
-// LIMPAR CAMPOS
-document.getElementById("nome").value="";
-document.getElementById("preco").value="";
-document.getElementById("imagem").value="";
-document.getElementById("link").value="";
-
+nomeInput.value="";
+precoInput.value="";
+imagemInput.value="";
+linkInput.value="";
 }
 
 // EXCLUIR
 function excluirProduto(id){
-if(confirm("Deseja excluir este produto?")){
+if(confirm("Excluir?")){
 db.collection("produtos").doc(id).delete();
-alert("Produto excluído");
 }
 }
 
-// ABRIR SHOPEE
+// ABRIR
 function abrirShopee(link){
-
-const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-if(isMobile){
-window.location.href=link.replace("https://shopee.com.br","shopee://");
-
-setTimeout(()=>{
-window.open(link,"_blank");
-},1200);
-
-}else{
 window.open(link,"_blank");
 }
 
-}
-
-// carregar
+// INICIAR
 renderProdutos();
 
 </script>
+
+</body>
+</html>
