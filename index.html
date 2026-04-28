@@ -3,7 +3,7 @@
 // SENHA ADMIN
 const SENHA_ADMIN = "Lezinho1579@";
 
-// FIREBASE CONFIG
+// FIREBASE
 const firebaseConfig = {
 apiKey: "AIzaSyB_ykuegRpYthAQo1vIsGwMs2s6assUWok",
 authDomain: "casaeachadosshopee.firebaseapp.com",
@@ -13,7 +13,6 @@ messagingSenderId: "288736027823",
 appId: "1:288736027823:web:d2e6e208efb345f7af605a"
 };
 
-// iniciar firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -51,10 +50,8 @@ alert("Senha incorreta");
 }
 }
 
-// LISTAR
+// LISTAR (SEM QUEBRAR)
 function renderProdutos(){
-
-produtosContainer.innerHTML="Carregando...";
 
 db.collection("produtos")
 .orderBy("criadoEm","desc")
@@ -66,47 +63,56 @@ snapshot.forEach(doc=>{
 
 const prod = doc.data();
 
-// 🔥 PROTEÇÃO CONTRA ERRO
-const nome = JSON.stringify(prod.nome);
-const preco = JSON.stringify(prod.preco);
-const imagem = JSON.stringify(prod.imagem);
-const link = JSON.stringify(prod.link);
+// CRIANDO ELEMENTOS (SEM innerHTML perigoso)
+const card = document.createElement("div");
+card.className = "bg-gray-900 rounded-2xl shadow";
 
-produtosContainer.innerHTML+=`
+const img = document.createElement("img");
+img.src = prod.imagem;
+img.className = "rounded-t-2xl";
 
-<div class="bg-gray-900 rounded-2xl shadow">
+const box = document.createElement("div");
+box.className = "p-4";
 
-<img src=${imagem} class="rounded-t-2xl" />
+const nome = document.createElement("h2");
+nome.innerText = prod.nome;
 
-<div class="p-4">
+const preco = document.createElement("p");
+preco.className = "text-green-400";
+preco.innerText = prod.preco;
 
-<h2>${prod.nome}</h2>
+// botão shopee
+const btn = document.createElement("button");
+btn.innerText = "Abrir na Shopee 🛒";
+btn.className = "block w-full mt-3 bg-orange-500 py-2 rounded-xl";
+btn.onclick = ()=> abrirShopee(prod.link);
 
-<p class="text-green-400">${prod.preco}</p>
+box.appendChild(nome);
+box.appendChild(preco);
+box.appendChild(btn);
 
-<button onclick="abrirShopee(${link})"
-class="block w-full mt-3 bg-orange-500 py-2 rounded-xl">
-Abrir na Shopee 🛒
-</button>
+// BOTÕES ADMIN
+if(adminLogado){
 
-${adminLogado ? `
+const editarBtn = document.createElement("button");
+editarBtn.innerText = "Editar ✏️";
+editarBtn.className = "block w-full mt-2 bg-yellow-500 py-2 rounded-xl";
+editarBtn.onclick = ()=> editarProduto(doc.id, prod);
 
-<button onclick='editarProduto("${doc.id}", ${nome}, ${preco}, ${imagem}, ${link})'
-class="block w-full mt-2 bg-yellow-500 py-2 rounded-xl">
-Editar ✏️
-</button>
+const excluirBtn = document.createElement("button");
+excluirBtn.innerText = "Excluir ❌";
+excluirBtn.className = "block w-full mt-2 bg-red-500 py-2 rounded-xl";
+excluirBtn.onclick = ()=> excluirProduto(doc.id);
 
-<button onclick="excluirProduto('${doc.id}')"
-class="block w-full mt-2 bg-red-500 py-2 rounded-xl">
-Excluir ❌
-</button>
+box.appendChild(editarBtn);
+box.appendChild(excluirBtn);
 
-` : ``}
+}
 
-</div>
-</div>
+card.appendChild(img);
+card.appendChild(box);
 
-`;
+produtosContainer.appendChild(card);
 
 });
 
@@ -114,12 +120,12 @@ Excluir ❌
 }
 
 // EDITAR
-function editarProduto(id, nome, preco, imagem, link){
+function editarProduto(id, prod){
 
-document.getElementById("nome").value = nome;
-document.getElementById("preco").value = preco;
-document.getElementById("imagem").value = imagem;
-document.getElementById("link").value = link;
+document.getElementById("nome").value = prod.nome;
+document.getElementById("preco").value = prod.preco;
+document.getElementById("imagem").value = prod.imagem;
+document.getElementById("link").value = prod.link;
 
 window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -134,7 +140,7 @@ const imagem=document.getElementById("imagem").value;
 const link=document.getElementById("link").value;
 
 if(!nome||!preco||!imagem||!link){
-alert("Preencha tudo");
+alert("Preencha todos os campos");
 return;
 }
 
@@ -149,7 +155,7 @@ alert("Produto publicado 🚀");
 
 // EXCLUIR
 function excluirProduto(id){
-if(confirm("Excluir?")){
+if(confirm("Deseja excluir?")){
 db.collection("produtos").doc(id).delete();
 }
 }
