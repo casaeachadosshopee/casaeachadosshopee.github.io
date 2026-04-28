@@ -1,3 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>CasaeAchadosShopee</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+</head>
+
+<body class="bg-gray-800 text-white">
+
+<header class="bg-gray-900 py-5 px-4">
+<h1 class="text-2xl text-center font-bold">CasaeAchadosShopee</h1>
+</header>
+
+<!-- LOGIN -->
+<section id="loginAdmin" class="hidden text-center mt-6">
+<input id="senha" type="password" placeholder="Senha" class="text-black p-2 rounded">
+<button onclick="verificarSenha()" class="bg-orange-500 px-4 py-2 rounded">Entrar</button>
+</section>
+
+<!-- ADMIN -->
+<section id="adminPanel" class="hidden text-center mt-6">
+
+<input id="nome" placeholder="Nome" class="text-black p-2 m-1 rounded">
+<input id="preco" placeholder="Preço" class="text-black p-2 m-1 rounded">
+<input id="imagem" placeholder="Imagem URL" class="text-black p-2 m-1 rounded">
+<input id="link" placeholder="Link afiliado" class="text-black p-2 m-1 rounded">
+
+<!-- BOTÃO CORRETO -->
+<button id="btnSalvar" onclick="addProduto()"
+class="bg-orange-500 px-6 py-2 rounded-xl">
+Salvar Produto
+</button>
+
+</section>
+
+<!-- PRODUTOS -->
+<main id="produtos" class="p-4 grid md:grid-cols-3 gap-4"></main>
+
 <script>
 
 // SENHA
@@ -8,9 +56,6 @@ const firebaseConfig = {
 apiKey: "AIzaSyB_ykuegRpYthAQo1vIsGwMs2s6assUWok",
 authDomain: "casaeachadosshopee.firebaseapp.com",
 projectId: "casaeachadosshopee",
-storageBucket: "casaeachadosshopee.firebasestorage.app",
-messagingSenderId: "288736027823",
-appId: "1:288736027823:web:d2e6e208efb345f7af605a"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -30,79 +75,59 @@ const btnSalvar = document.getElementById("btnSalvar");
 let adminLogado = false;
 let editandoId = null;
 
-// ATALHO
+// ATALHO ADMIN
 document.addEventListener("keydown", e=>{
 if(e.ctrlKey && e.altKey && e.key==="a"){
 loginAdmin.classList.toggle("hidden");
 }
 });
 
-// LINK ADMIN
-const params = new URLSearchParams(window.location.search);
-if(params.get("painel")==="1579lz"){
-loginAdmin.classList.remove("hidden");
-}
-
 // LOGIN
 function verificarSenha(){
-const senha = document.getElementById("senha").value;
-
-if(senha===SENHA_ADMIN){
+if(document.getElementById("senha").value===SENHA_ADMIN){
 adminLogado=true;
 loginAdmin.classList.add("hidden");
 adminPanel.classList.remove("hidden");
 renderProdutos();
-}else{
-alert("Senha incorreta");
 }
 }
 
 // LISTAR
 function renderProdutos(){
-
-db.collection("produtos")
-.orderBy("criadoEm","desc")
+db.collection("produtos").orderBy("criadoEm","desc")
 .onSnapshot(snapshot=>{
 
 produtosContainer.innerHTML="";
 
 snapshot.forEach(doc=>{
-
 const p = doc.data();
 
 produtosContainer.innerHTML += `
-<div class="bg-gray-900 rounded-2xl shadow">
+<div class="bg-gray-900 p-3 rounded">
 
-<img src="${p.imagem}" class="rounded-t-2xl">
-
-<div class="p-4">
+<img src="${p.imagem}" class="rounded">
 
 <h2>${p.nome}</h2>
 
-<p class="text-green-400 font-bold">
-🔥 Ver oferta atual
-</p>
+<p class="text-green-400">🔥 Ver oferta atual</p>
 
-<button onclick="abrirShopee('${p.link}')"
-class="w-full mt-2 bg-orange-500 py-2 rounded-xl">
-🛒 APROVEITAR AGORA
+<button onclick="window.open('${p.link}')"
+class="bg-orange-500 w-full py-2 mt-2 rounded">
+🛒 Comprar
 </button>
 
 ${adminLogado ? `
-
 <button onclick='editarProduto(${JSON.stringify(doc.id)}, ${JSON.stringify(p.nome)}, ${JSON.stringify(p.preco)}, ${JSON.stringify(p.imagem)}, ${JSON.stringify(p.link)})'
-class="w-full mt-2 bg-yellow-500 py-2 rounded-xl text-black">
-Editar ✏️
+class="bg-yellow-500 w-full mt-2 py-2 rounded">
+Editar
 </button>
 
 <button onclick="excluirProduto('${doc.id}')"
-class="w-full mt-2 bg-red-500 py-2 rounded-xl">
-Excluir ❌
+class="bg-red-500 w-full mt-2 py-2 rounded">
+Excluir
 </button>
-
 ` : ``}
 
-</div>
 </div>
 `;
 
@@ -114,15 +139,14 @@ Excluir ❌
 // EDITAR
 function editarProduto(id,nome,preco,img,link){
 
-nomeInput.value = nome;
-precoInput.value = preco;
-imagemInput.value = img;
-linkInput.value = link;
+nomeInput.value=nome;
+precoInput.value=preco;
+imagemInput.value=img;
+linkInput.value=link;
 
-editandoId = id;
+editandoId=id;
 
-// muda botão
-btnSalvar.innerText = "Atualizar Produto ✏️";
+btnSalvar.innerText="Atualizar Produto ✏️";
 btnSalvar.classList.remove("bg-orange-500");
 btnSalvar.classList.add("bg-yellow-500");
 
@@ -132,43 +156,43 @@ window.scrollTo({top:0,behavior:"smooth"});
 // SALVAR
 function addProduto(){
 
-const nome = nomeInput.value;
-const preco = precoInput.value;
-const imagem = imagemInput.value;
-const link = linkInput.value;
+const nome=nomeInput.value;
+const preco=precoInput.value;
+const imagem=imagemInput.value;
+const link=linkInput.value;
 
-if(!nome || !preco || !imagem || !link){
-alert("Preencha todos os campos");
+if(!nome||!preco||!imagem||!link){
+alert("Preencha tudo");
 return;
 }
 
 if(editandoId){
 
 db.collection("produtos").doc(editandoId).update({
-nome, preco, imagem, link
+nome,preco,imagem,link
 });
 
-alert("Produto atualizado ✅");
-editandoId = null;
+alert("Atualizado");
+editandoId=null;
 
 }else{
 
 db.collection("produtos").add({
-nome, preco, imagem, link,
+nome,preco,imagem,link,
 criadoEm: firebase.firestore.FieldValue.serverTimestamp()
 });
 
-alert("Produto publicado 🚀");
+alert("Publicado");
 }
 
 // limpar
-nomeInput.value = "";
-precoInput.value = "";
-imagemInput.value = "";
-linkInput.value = "";
+nomeInput.value="";
+precoInput.value="";
+imagemInput.value="";
+linkInput.value="";
 
 // voltar botão
-btnSalvar.innerText = "Salvar Produto";
+btnSalvar.innerText="Salvar Produto";
 btnSalvar.classList.remove("bg-yellow-500");
 btnSalvar.classList.add("bg-orange-500");
 
@@ -176,17 +200,13 @@ btnSalvar.classList.add("bg-orange-500");
 
 // EXCLUIR
 function excluirProduto(id){
-if(confirm("Deseja excluir?")){
 db.collection("produtos").doc(id).delete();
-}
-}
-
-// ABRIR
-function abrirShopee(link){
-window.open(link,"_blank");
 }
 
 // INICIAR
 renderProdutos();
 
 </script>
+
+</body>
+</html>
