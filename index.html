@@ -1,462 +1,306 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<title>CasaeAchadosShopee</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-</head>
-
-<body class="bg-gray-800 font-sans text-white">
-
-<!-- HEADER -->
-<header class="bg-gray-900 text-white py-5 px-4 shadow-md sticky top-0 z-50">
-
-<div class="max-w-6xl mx-auto flex items-center gap-3">
-
-<img src="CasaeAchadosshopee.png"
-class="h-14 w-auto bg-white rounded-lg p-1 shadow">
-
-<div>
-<h1 class="text-2xl font-bold">CasaeAchadosShopee</h1>
-<p class="text-sm text-gray-300">
-Melhores achados da Shopee com desconto 🔥
-</p>
-</div>
-
-</div>
-
-<!-- PESQUISA -->
-<div class="max-w-6xl mx-auto mt-5">
-
-<input
-id="pesquisaInput"
-onkeyup="pesquisar()"
-placeholder="Pesquisar produtos..."
-class="p-3 w-full rounded-xl text-black"
-/>
-
-</div>
-
-<!-- MENU CATEGORIAS -->
-<div class="max-w-6xl mx-auto mt-5 flex gap-3 overflow-auto pb-2">
-
-<a href="#Cozinha"
-class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">
-🍳 Cozinha
-</a>
-
-<a href="#Quarto"
-class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">
-🛏️ Quarto
-</a>
-
-<a href="#Banheiro"
-class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">
-🚿 Banheiro
-</a>
-
-<a href="#Decoração"
-class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">
-✨ Decoração
-</a>
-
-<a href="#Organização"
-class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">
-📦 Organização
-</a>
-
-</div>
-
-</header>
-
-<!-- LOGIN ADMIN -->
-<section id="loginAdmin"
-class="max-w-md mx-auto px-4 mt-6 hidden">
-
-<div class="bg-gray-900 rounded-2xl shadow p-6 text-center">
-
-<h2 class="text-xl font-bold mb-4">
-Acesso Admin
-</h2>
-
-<input
-id="senha"
-type="password"
-placeholder="Digite a senha"
-class="border p-2 rounded w-full mb-3 text-black"
-/>
-
-<button
-onclick="verificarSenha()"
-class="bg-orange-500 text-white px-6 py-2 rounded-xl font-bold">
-Entrar
-</button>
-
-</div>
-
-</section>
-
-<!-- PAINEL -->
-<section id="adminPanel"
-class="max-w-4xl mx-auto px-4 mt-6 hidden">
-
-<div class="bg-gray-900 rounded-2xl shadow p-6">
-
-<h2 class="text-xl font-bold mb-4">
-Painel Admin
-</h2>
-
-<input
-id="nome"
-placeholder="Nome do produto"
-class="border p-2 rounded w-full mb-2 text-black"
-/>
-
-<input
-id="preco"
-placeholder="Preço"
-class="border p-2 rounded w-full mb-2 text-black"
-/>
-
-<input
-id="imagem"
-placeholder="URL da imagem"
-class="border p-2 rounded w-full mb-2 text-black"
-/>
-
-<input
-id="link"
-placeholder="Link afiliado Shopee"
-class="border p-2 rounded w-full mb-2 text-black"
-/>
-
-<select
-id="categoria"
-class="border p-2 rounded w-full mb-4 text-black">
-
-<option value="Cozinha">🍳 Cozinha</option>
-<option value="Quarto">🛏️ Quarto</option>
-<option value="Banheiro">🚿 Banheiro</option>
-<option value="Decoração">✨ Decoração</option>
-<option value="Organização">📦 Organização</option>
-
-</select>
-
-<button
-onclick="addProduto()"
-class="bg-orange-500 text-white px-6 py-2 rounded-xl font-bold">
-Adicionar Produto
-</button>
-
-</div>
-
-</section>
-
-<!-- PRODUTOS -->
-<main
-id="produtos"
-class="max-w-6xl mx-auto px-4 py-8 grid gap-8">
-</main>
-
-<!-- FOOTER -->
-<footer class="bg-black text-white text-center py-5 text-sm mt-10">
-© 2026 CasaeAchadosShopee
-</footer>
-
 <script>
-
-// SENHA
 const SENHA_ADMIN = "Lezinho1579@";
 
-// FIREBASE
 const firebaseConfig = {
-apiKey: "AIzaSy...",
-authDomain: "casaeachadosshopee.firebaseapp.com",
-projectId: "casaeachadosshopee",
-storageBucket: "casaeachadosshopee.firebasestorage.app",
-messagingSenderId: "288736027823",
-appId: "1:288736027823:web:d2e6e208efb345f7af605a"
+  apiKey: "SUA_API_KEY_AQUI",
+  authDomain: "casaeachadosshopee.firebaseapp.com",
+  projectId: "casaeachadosshopee",
+  storageBucket: "casaeachadosshopee.firebasestorage.app",
+  messagingSenderId: "288736027823",
+  appId: "1:288736027823:web:d2e6e208efb345f7af605a"
 };
 
 firebase.initializeApp(firebaseConfig);
 
 const db = firebase.firestore();
 
-// ELEMENTOS
 const produtosContainer = document.getElementById("produtos");
 const loginAdmin = document.getElementById("loginAdmin");
 const adminPanel = document.getElementById("adminPanel");
 
 let adminLogado = false;
 
-// ABRIR LOGIN
-document.addEventListener("keydown", function(e){
-
-if(e.ctrlKey && e.altKey && e.key.toLowerCase()==="a"){
-loginAdmin.classList.toggle("hidden");
-}
-
+document.addEventListener("keydown", function(e) {
+  if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "a") {
+    loginAdmin.classList.toggle("hidden");
+  }
 });
 
-// LINK ADMIN
 const urlParams = new URLSearchParams(window.location.search);
 
-if(urlParams.get("painel") === "1579lz"){
-loginAdmin.classList.remove("hidden");
+if (urlParams.get("painel") === "1579lz") {
+  loginAdmin.classList.remove("hidden");
 }
 
-// LOGIN
-function verificarSenha(){
+function verificarSenha() {
+  const senha = document.getElementById("senha").value;
 
-const senha = document.getElementById("senha").value;
+  if (senha === SENHA_ADMIN) {
+    adminLogado = true;
+    loginAdmin.classList.add("hidden");
+    adminPanel.classList.remove("hidden");
+    renderProdutos();
+  } else {
+    alert("Senha incorreta");
+  }
+}
 
-if(senha === SENHA_ADMIN){
+function pesquisar() {
+  const input = document
+    .getElementById("pesquisaInput")
+    .value
+    .toLowerCase();
 
-adminLogado = true;
+  const produtos = document.querySelectorAll(".produto");
 
-loginAdmin.classList.add("hidden");
+  produtos.forEach(prod => {
+    const texto = prod.innerText.toLowerCase();
+    prod.style.display = texto.includes(input) ? "block" : "none";
+  });
+}
 
-adminPanel.classList.remove("hidden");
+function sugerirCategoria(nome) {
+  const texto = nome.toLowerCase();
+
+  if (
+    texto.includes("chaleira") ||
+    texto.includes("panela") ||
+    texto.includes("pote") ||
+    texto.includes("cozinha") ||
+    texto.includes("copo") ||
+    texto.includes("talher") ||
+    texto.includes("garrafa") ||
+    texto.includes("filtro") ||
+    texto.includes("frigideira") ||
+    texto.includes("escorredor")
+  ) {
+    return "Cozinha";
+  }
+
+  if (
+    texto.includes("coberdrom") ||
+    texto.includes("cobertor") ||
+    texto.includes("lençol") ||
+    texto.includes("lencol") ||
+    texto.includes("travesseiro") ||
+    texto.includes("almofada") ||
+    texto.includes("edredom") ||
+    texto.includes("colcha")
+  ) {
+    return "Quarto";
+  }
+
+  if (
+    texto.includes("banheiro") ||
+    texto.includes("toalha") ||
+    texto.includes("sabonete") ||
+    texto.includes("escova") ||
+    texto.includes("shampoo") ||
+    texto.includes("porta shampoo")
+  ) {
+    return "Banheiro";
+  }
+
+  if (
+    texto.includes("planta") ||
+    texto.includes("vaso") ||
+    texto.includes("decor") ||
+    texto.includes("luminária") ||
+    texto.includes("luminaria") ||
+    texto.includes("quadro") ||
+    texto.includes("flor")
+  ) {
+    return "Decoração";
+  }
+
+  if (
+    texto.includes("organizador") ||
+    texto.includes("suporte") ||
+    texto.includes("caixa") ||
+    texto.includes("prateleira") ||
+    texto.includes("cabide") ||
+    texto.includes("maquiagem")
+  ) {
+    return "Organização";
+  }
+
+  return "Organização";
+}
+
+function renderProdutos() {
+  produtosContainer.innerHTML = `
+    <div class="text-center text-xl">
+      Carregando...
+    </div>
+  `;
+
+  db.collection("produtos")
+    .orderBy("criadoEm", "desc")
+    .onSnapshot(snapshot => {
+      produtosContainer.innerHTML = "";
+
+      const categorias = {
+        Cozinha: [],
+        Quarto: [],
+        Banheiro: [],
+        Decoração: [],
+        Organização: []
+      };
+
+      snapshot.forEach(doc => {
+        const prod = doc.data();
+
+        const categoriaProduto =
+          prod.categoria && prod.categoria !== "undefined"
+            ? prod.categoria
+            : sugerirCategoria(prod.nome || "");
+
+        if (!categorias[categoriaProduto]) {
+          categorias[categoriaProduto] = [];
+        }
+
+        categorias[categoriaProduto].push({
+          id: doc.id,
+          ...prod,
+          categoria: categoriaProduto
+        });
+      });
+
+      for (const categoria in categorias) {
+        if (categorias[categoria].length === 0) {
+          continue;
+        }
+
+        produtosContainer.innerHTML += `
+          <section id="${categoria}">
+            <h2 class="text-3xl font-bold text-orange-400 mb-6">
+              ${categoria}
+            </h2>
+
+            <div
+              id="grid-${categoria}"
+              class="grid md:grid-cols-3 gap-6">
+            </div>
+          </section>
+        `;
+
+        const grid = document.getElementById(`grid-${categoria}`);
+
+        categorias[categoria].forEach(prod => {
+          grid.innerHTML += `
+            <div class="produto bg-gray-900 rounded-2xl overflow-hidden shadow-lg hover:scale-105 transition duration-300">
+              <img
+                src="${prod.imagem}"
+                class="w-full h-64 object-cover"
+              />
+
+              <div class="p-4">
+                <h2 class="font-bold text-lg min-h-[60px]">
+                  ${prod.nome}
+                </h2>
+
+                <p class="text-green-400 text-2xl font-bold mt-2">
+                  ${prod.preco}
+                </p>
+
+                <button
+                  onclick="abrirShopee('${prod.link}')"
+                  class="block w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-bold">
+                  Ver Oferta 🛒
+                </button>
+
+                ${adminLogado ? `
+                  <button
+                    onclick="excluirProduto('${prod.id}')"
+                    class="block w-full mt-2 bg-red-500 text-white py-2 rounded-xl font-bold">
+                    Excluir ❌
+                  </button>
+                ` : ""}
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      pesquisar();
+    });
+}
+
+function addProduto() {
+  const nome = document.getElementById("nome").value;
+  const preco = document.getElementById("preco").value;
+  const imagem = document.getElementById("imagem").value;
+  const link = document.getElementById("link").value;
+  const categoria = document.getElementById("categoria").value;
+
+  if (!nome || !preco || !imagem || !link) {
+    alert("Preencha todos os campos");
+    return;
+  }
+
+  db.collection("produtos").add({
+    nome,
+    preco,
+    imagem,
+    link,
+    categoria,
+    criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  alert("Produto publicado 🚀");
+
+  document.getElementById("nome").value = "";
+  document.getElementById("preco").value = "";
+  document.getElementById("imagem").value = "";
+  document.getElementById("link").value = "";
+}
+
+function corrigirCategoriasAntigas() {
+  if (!adminLogado) {
+    alert("Entre no painel admin primeiro");
+    return;
+  }
+
+  db.collection("produtos").get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const prod = doc.data();
+
+      if (!prod.categoria || prod.categoria === "undefined") {
+        const categoria = sugerirCategoria(prod.nome || "");
+
+        db.collection("produtos").doc(doc.id).update({
+          categoria: categoria
+        });
+      }
+    });
+
+    alert("Categorias corrigidas com sucesso");
+  });
+}
+
+function excluirProduto(id) {
+  if (confirm("Deseja excluir este produto?")) {
+    db.collection("produtos").doc(id).delete();
+    alert("Produto excluído");
+  }
+}
+
+function abrirShopee(link) {
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    window.location.href = link.replace(
+      "https://shopee.com.br",
+      "shopee://"
+    );
+
+    setTimeout(() => {
+      window.open(link, "_blank");
+    }, 1200);
+  } else {
+    window.open(link, "_blank");
+  }
+}
 
 renderProdutos();
-
-}else{
-
-alert("Senha incorreta");
-
-}
-
-}
-
-// PESQUISA
-function pesquisar(){
-
-let input = document
-.getElementById("pesquisaInput")
-.value
-.toLowerCase();
-
-let produtos = document.querySelectorAll(".produto");
-
-produtos.forEach(prod => {
-
-let texto = prod.innerText.toLowerCase();
-
-if(texto.includes(input)){
-
-prod.style.display = "block";
-
-}else{
-
-prod.style.display = "none";
-
-}
-
-});
-
-}
-
-// RENDER
-function renderProdutos(){
-
-produtosContainer.innerHTML = `
-<div class="text-center text-xl">
-Carregando...
-</div>
-`;
-
-db.collection("produtos")
-.orderBy("criadoEm","desc")
-.onSnapshot(snapshot => {
-
-produtosContainer.innerHTML = "";
-
-const categorias = {};
-
-snapshot.forEach(doc => {
-
-const prod = doc.data();
-
-if(!categorias[prod.categoria]){
-categorias[prod.categoria] = [];
-}
-
-categorias[prod.categoria].push({
-id: doc.id,
-...prod
-});
-
-});
-
-for(const categoria in categorias){
-
-produtosContainer.innerHTML += `
-
-<section id="${categoria}">
-
-<h2 class="text-3xl font-bold text-orange-400 mb-6">
-${categoria}
-</h2>
-
-<div
-id="grid-${categoria}"
-class="grid md:grid-cols-3 gap-6">
-</div>
-
-</section>
-
-`;
-
-const grid = document.getElementById(`grid-${categoria}`);
-
-categorias[categoria].forEach(prod => {
-
-grid.innerHTML += `
-
-<div class="produto bg-gray-900 rounded-2xl overflow-hidden shadow-lg hover:scale-105 transition duration-300">
-
-<img
-src="${prod.imagem}"
-class="w-full h-64 object-cover"
-/>
-
-<div class="p-4">
-
-<h2 class="font-bold text-lg min-h-[60px]">
-${prod.nome}
-</h2>
-
-<p class="text-green-400 text-2xl font-bold mt-2">
-${prod.preco}
-</p>
-
-<button
-onclick="abrirShopee('${prod.link}')"
-class="block w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-bold">
-Ver Oferta 🛒
-</button>
-
-${adminLogado ? `
-
-<button
-onclick="excluirProduto('${prod.id}')"
-class="block w-full mt-2 bg-red-500 text-white py-2 rounded-xl font-bold">
-Excluir ❌
-</button>
-
-` : ``}
-
-</div>
-
-</div>
-
-`;
-
-});
-
-}
-
-pesquisar();
-
-});
-
-}
-
-// ADD
-function addProduto(){
-
-const nome = document.getElementById("nome").value;
-const preco = document.getElementById("preco").value;
-const imagem = document.getElementById("imagem").value;
-const link = document.getElementById("link").value;
-const categoria = document.getElementById("categoria").value;
-
-if(!nome || !preco || !imagem || !link){
-
-alert("Preencha todos os campos");
-
-return;
-
-}
-
-db.collection("produtos").add({
-
-nome,
-preco,
-imagem,
-link,
-categoria,
-
-criadoEm:
-firebase.firestore.FieldValue.serverTimestamp()
-
-});
-
-alert("Produto publicado 🚀");
-
-document.getElementById("nome").value = "";
-document.getElementById("preco").value = "";
-document.getElementById("imagem").value = "";
-document.getElementById("link").value = "";
-
-}
-
-// EXCLUIR
-function excluirProduto(id){
-
-if(confirm("Deseja excluir este produto?")){
-
-db.collection("produtos")
-.doc(id)
-.delete();
-
-alert("Produto excluído");
-
-}
-
-}
-
-// ABRIR SHOPEE
-function abrirShopee(link){
-
-const isMobile =
-/Android|iPhone|iPad|iPod/i
-.test(navigator.userAgent);
-
-if(isMobile){
-
-window.location.href =
-link.replace(
-"https://shopee.com.br",
-"shopee://"
-);
-
-setTimeout(() => {
-
-window.open(link,"_blank");
-
-},1200);
-
-}else{
-
-window.open(link,"_blank");
-
-}
-
-}
-
-// START
-renderProdutos();
-
 </script>
-
-</body>
-</html>
