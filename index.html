@@ -1,8 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CasaeAchadosShopee</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+
+<body class="bg-gray-800 font-sans text-white">
+
+<header class="bg-gray-900 text-white py-5 px-4 shadow-md sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto flex items-center gap-3">
+    <img src="CasaeAchadosshopee.png" class="h-14 w-auto bg-white rounded-lg p-1 shadow">
+
+    <div>
+      <h1 class="text-2xl font-bold">CasaeAchadosShopee</h1>
+      <p class="text-sm text-gray-300">Melhores achados da Shopee com desconto 🔥</p>
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto mt-5">
+    <input
+      id="pesquisaInput"
+      onkeyup="pesquisar()"
+      placeholder="Pesquisar produtos..."
+      class="p-3 w-full rounded-xl text-black"
+    />
+  </div>
+
+  <div class="max-w-6xl mx-auto mt-5 flex gap-3 overflow-auto pb-2">
+    <a href="#Cozinha" class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">🍳 Cozinha</a>
+    <a href="#Quarto" class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">🛏️ Quarto</a>
+    <a href="#Banheiro" class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">🚿 Banheiro</a>
+    <a href="#Decoração" class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">✨ Decoração</a>
+    <a href="#Organização" class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">📦 Organização</a>
+  </div>
+</header>
+
+<section id="loginAdmin" class="max-w-md mx-auto px-4 mt-6 hidden">
+  <div class="bg-gray-900 rounded-2xl shadow p-6 text-center">
+    <h2 class="text-xl font-bold mb-4">Acesso Admin</h2>
+
+    <input
+      id="senha"
+      type="password"
+      placeholder="Digite a senha"
+      class="border p-2 rounded w-full mb-3 text-black"
+    />
+
+    <button onclick="verificarSenha()" class="bg-orange-500 text-white px-6 py-2 rounded-xl font-bold">
+      Entrar
+    </button>
+  </div>
+</section>
+
+<section id="adminPanel" class="max-w-4xl mx-auto px-4 mt-6 hidden">
+  <div class="bg-gray-900 rounded-2xl shadow p-6">
+    <h2 class="text-xl font-bold mb-4">Painel Admin</h2>
+
+    <input id="nome" placeholder="Nome do produto" class="border p-2 rounded w-full mb-2 text-black"/>
+    <input id="preco" placeholder="Preço" class="border p-2 rounded w-full mb-2 text-black"/>
+    <input id="imagem" placeholder="URL da imagem" class="border p-2 rounded w-full mb-2 text-black"/>
+    <input id="link" placeholder="Link afiliado Shopee" class="border p-2 rounded w-full mb-2 text-black"/>
+
+    <select id="categoria" class="border p-2 rounded w-full mb-4 text-black">
+      <option value="Cozinha">🍳 Cozinha</option>
+      <option value="Quarto">🛏️ Quarto</option>
+      <option value="Banheiro">🚿 Banheiro</option>
+      <option value="Decoração">✨ Decoração</option>
+      <option value="Organização">📦 Organização</option>
+    </select>
+
+    <button onclick="addProduto()" class="bg-orange-500 text-white px-6 py-2 rounded-xl font-bold">
+      Adicionar Produto
+    </button>
+
+    <button onclick="corrigirCategoriasAntigas()" class="bg-green-500 text-white px-6 py-2 rounded-xl font-bold mt-3">
+      Corrigir Categorias
+    </button>
+  </div>
+</section>
+
+<main id="produtos" class="max-w-6xl mx-auto px-4 py-8 grid gap-8"></main>
+
+<footer class="bg-black text-white text-center py-5 text-sm mt-10">
+  © 2026 CasaeAchadosShopee
+</footer>
+
 <script>
 const SENHA_ADMIN = "Lezinho1579@";
 
 const firebaseConfig = {
-  apiKey: "AIzaSy...",
+  apiKey: "COLE_SUA_API_KEY_COMPLETA_AQUI",
   authDomain: "casaeachadosshopee.firebaseapp.com",
   projectId: "casaeachadosshopee",
   storageBucket: "casaeachadosshopee.firebasestorage.app",
@@ -13,7 +105,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const db = firebase.firestore();
-
 const produtosContainer = document.getElementById("produtos");
 const loginAdmin = document.getElementById("loginAdmin");
 const adminPanel = document.getElementById("adminPanel");
@@ -127,7 +218,8 @@ function criarCardProduto(prod) {
   card.className = "produto bg-gray-900 rounded-2xl overflow-hidden shadow-lg hover:scale-105 transition duration-300";
 
   const img = document.createElement("img");
-  img.src = prod.imagem;
+  img.src = prod.imagem || "";
+  img.alt = prod.nome || "Produto";
   img.className = "w-full h-64 object-cover";
 
   const conteudo = document.createElement("div");
@@ -135,11 +227,11 @@ function criarCardProduto(prod) {
 
   const nome = document.createElement("h2");
   nome.className = "font-bold text-lg min-h-[60px]";
-  nome.textContent = prod.nome;
+  nome.textContent = prod.nome || "Produto sem nome";
 
   const preco = document.createElement("p");
   preco.className = "text-green-400 text-2xl font-bold mt-2";
-  preco.textContent = prod.preco;
+  preco.textContent = prod.preco || "🔥 Oferta disponível";
 
   const botaoOferta = document.createElement("button");
   botaoOferta.className = "block w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-bold";
@@ -232,11 +324,19 @@ function renderProdutos() {
         produtosContainer.appendChild(section);
       }
 
+      if (snapshot.empty) {
+        produtosContainer.innerHTML = `
+          <div class="text-center text-xl text-gray-300">
+            Nenhum produto cadastrado ainda.
+          </div>
+        `;
+      }
+
       pesquisar();
     }, error => {
       produtosContainer.innerHTML = `
         <div class="text-center text-red-400 text-xl">
-          Erro ao carregar produtos.
+          Erro ao carregar produtos. Verifique a chave do Firebase e as regras do Firestore.
         </div>
       `;
 
@@ -276,4 +376,70 @@ function addProduto() {
   });
 }
 
-function corrigirCategoriasAnt
+function corrigirCategoriasAntigas() {
+  if (!adminLogado) {
+    alert("Entre no painel admin primeiro");
+    return;
+  }
+
+  db.collection("produtos").get().then(snapshot => {
+    const promessas = [];
+
+    snapshot.forEach(doc => {
+      const prod = doc.data();
+
+      if (!prod.categoria || prod.categoria === "undefined") {
+        const categoria = sugerirCategoria(prod.nome);
+
+        promessas.push(
+          db.collection("produtos").doc(doc.id).update({
+            categoria: categoria
+          })
+        );
+      }
+    });
+
+    Promise.all(promessas).then(() => {
+      alert("Categorias corrigidas com sucesso");
+    });
+  }).catch(error => {
+    alert("Erro ao corrigir categorias");
+    console.error(error);
+  });
+}
+
+function excluirProduto(id) {
+  if (confirm("Deseja excluir este produto?")) {
+    db.collection("produtos").doc(id).delete().then(() => {
+      alert("Produto excluído");
+    }).catch(error => {
+      alert("Erro ao excluir produto");
+      console.error(error);
+    });
+  }
+}
+
+function abrirShopee(link) {
+  if (!link) {
+    alert("Link da oferta não cadastrado");
+    return;
+  }
+
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    window.location.href = link.replace("https://shopee.com.br", "shopee://");
+
+    setTimeout(() => {
+      window.open(link, "_blank");
+    }, 1200);
+  } else {
+    window.open(link, "_blank");
+  }
+}
+
+renderProdutos();
+</script>
+
+</body>
+</html>
