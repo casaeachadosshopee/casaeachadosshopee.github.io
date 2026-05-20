@@ -2,7 +2,7 @@
 const SENHA_ADMIN = "Lezinho1579@";
 
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY_AQUI",
+  apiKey: "AIzaSy...",
   authDomain: "casaeachadosshopee.firebaseapp.com",
   projectId: "casaeachadosshopee",
   storageBucket: "casaeachadosshopee.firebasestorage.app",
@@ -46,11 +46,7 @@ function verificarSenha() {
 }
 
 function pesquisar() {
-  const input = document
-    .getElementById("pesquisaInput")
-    .value
-    .toLowerCase();
-
+  const input = document.getElementById("pesquisaInput").value.toLowerCase();
   const produtos = document.querySelectorAll(".produto");
 
   produtos.forEach(prod => {
@@ -60,7 +56,7 @@ function pesquisar() {
 }
 
 function sugerirCategoria(nome) {
-  const texto = nome.toLowerCase();
+  const texto = String(nome || "").toLowerCase();
 
   if (
     texto.includes("chaleira") ||
@@ -95,8 +91,7 @@ function sugerirCategoria(nome) {
     texto.includes("toalha") ||
     texto.includes("sabonete") ||
     texto.includes("escova") ||
-    texto.includes("shampoo") ||
-    texto.includes("porta shampoo")
+    texto.includes("shampoo")
   ) {
     return "Banheiro";
   }
@@ -127,6 +122,53 @@ function sugerirCategoria(nome) {
   return "Organização";
 }
 
+function criarCardProduto(prod) {
+  const card = document.createElement("div");
+  card.className = "produto bg-gray-900 rounded-2xl overflow-hidden shadow-lg hover:scale-105 transition duration-300";
+
+  const img = document.createElement("img");
+  img.src = prod.imagem;
+  img.className = "w-full h-64 object-cover";
+
+  const conteudo = document.createElement("div");
+  conteudo.className = "p-4";
+
+  const nome = document.createElement("h2");
+  nome.className = "font-bold text-lg min-h-[60px]";
+  nome.textContent = prod.nome;
+
+  const preco = document.createElement("p");
+  preco.className = "text-green-400 text-2xl font-bold mt-2";
+  preco.textContent = prod.preco;
+
+  const botaoOferta = document.createElement("button");
+  botaoOferta.className = "block w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-bold";
+  botaoOferta.textContent = "Ver Oferta 🛒";
+  botaoOferta.onclick = function() {
+    abrirShopee(prod.link);
+  };
+
+  conteudo.appendChild(nome);
+  conteudo.appendChild(preco);
+  conteudo.appendChild(botaoOferta);
+
+  if (adminLogado) {
+    const botaoExcluir = document.createElement("button");
+    botaoExcluir.className = "block w-full mt-2 bg-red-500 text-white py-2 rounded-xl font-bold";
+    botaoExcluir.textContent = "Excluir ❌";
+    botaoExcluir.onclick = function() {
+      excluirProduto(prod.id);
+    };
+
+    conteudo.appendChild(botaoExcluir);
+  }
+
+  card.appendChild(img);
+  card.appendChild(conteudo);
+
+  return card;
+}
+
 function renderProdutos() {
   produtosContainer.innerHTML = `
     <div class="text-center text-xl">
@@ -140,11 +182,11 @@ function renderProdutos() {
       produtosContainer.innerHTML = "";
 
       const categorias = {
-        Cozinha: [],
-        Quarto: [],
-        Banheiro: [],
-        Decoração: [],
-        Organização: []
+        "Cozinha": [],
+        "Quarto": [],
+        "Banheiro": [],
+        "Decoração": [],
+        "Organização": []
       };
 
       snapshot.forEach(doc => {
@@ -153,7 +195,7 @@ function renderProdutos() {
         const categoriaProduto =
           prod.categoria && prod.categoria !== "undefined"
             ? prod.categoria
-            : sugerirCategoria(prod.nome || "");
+            : sugerirCategoria(prod.nome);
 
         if (!categorias[categoriaProduto]) {
           categorias[categoriaProduto] = [];
@@ -171,58 +213,34 @@ function renderProdutos() {
           continue;
         }
 
-        produtosContainer.innerHTML += `
-          <section id="${categoria}">
-            <h2 class="text-3xl font-bold text-orange-400 mb-6">
-              ${categoria}
-            </h2>
+        const section = document.createElement("section");
+        section.id = categoria;
 
-            <div
-              id="grid-${categoria}"
-              class="grid md:grid-cols-3 gap-6">
-            </div>
-          </section>
-        `;
+        const titulo = document.createElement("h2");
+        titulo.className = "text-3xl font-bold text-orange-400 mb-6";
+        titulo.textContent = categoria;
 
-        const grid = document.getElementById(`grid-${categoria}`);
+        const grid = document.createElement("div");
+        grid.className = "grid md:grid-cols-3 gap-6";
 
         categorias[categoria].forEach(prod => {
-          grid.innerHTML += `
-            <div class="produto bg-gray-900 rounded-2xl overflow-hidden shadow-lg hover:scale-105 transition duration-300">
-              <img
-                src="${prod.imagem}"
-                class="w-full h-64 object-cover"
-              />
-
-              <div class="p-4">
-                <h2 class="font-bold text-lg min-h-[60px]">
-                  ${prod.nome}
-                </h2>
-
-                <p class="text-green-400 text-2xl font-bold mt-2">
-                  ${prod.preco}
-                </p>
-
-                <button
-                  onclick="abrirShopee('${prod.link}')"
-                  class="block w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-bold">
-                  Ver Oferta 🛒
-                </button>
-
-                ${adminLogado ? `
-                  <button
-                    onclick="excluirProduto('${prod.id}')"
-                    class="block w-full mt-2 bg-red-500 text-white py-2 rounded-xl font-bold">
-                    Excluir ❌
-                  </button>
-                ` : ""}
-              </div>
-            </div>
-          `;
+          grid.appendChild(criarCardProduto(prod));
         });
+
+        section.appendChild(titulo);
+        section.appendChild(grid);
+        produtosContainer.appendChild(section);
       }
 
       pesquisar();
+    }, error => {
+      produtosContainer.innerHTML = `
+        <div class="text-center text-red-400 text-xl">
+          Erro ao carregar produtos.
+        </div>
+      `;
+
+      console.error(error);
     });
 }
 
@@ -245,62 +263,17 @@ function addProduto() {
     link,
     categoria,
     criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-  });
+  }).then(() => {
+    alert("Produto publicado 🚀");
 
-  alert("Produto publicado 🚀");
-
-  document.getElementById("nome").value = "";
-  document.getElementById("preco").value = "";
-  document.getElementById("imagem").value = "";
-  document.getElementById("link").value = "";
-}
-
-function corrigirCategoriasAntigas() {
-  if (!adminLogado) {
-    alert("Entre no painel admin primeiro");
-    return;
-  }
-
-  db.collection("produtos").get().then(snapshot => {
-    snapshot.forEach(doc => {
-      const prod = doc.data();
-
-      if (!prod.categoria || prod.categoria === "undefined") {
-        const categoria = sugerirCategoria(prod.nome || "");
-
-        db.collection("produtos").doc(doc.id).update({
-          categoria: categoria
-        });
-      }
-    });
-
-    alert("Categorias corrigidas com sucesso");
+    document.getElementById("nome").value = "";
+    document.getElementById("preco").value = "";
+    document.getElementById("imagem").value = "";
+    document.getElementById("link").value = "";
+  }).catch(error => {
+    alert("Erro ao publicar produto");
+    console.error(error);
   });
 }
 
-function excluirProduto(id) {
-  if (confirm("Deseja excluir este produto?")) {
-    db.collection("produtos").doc(id).delete();
-    alert("Produto excluído");
-  }
-}
-
-function abrirShopee(link) {
-  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-  if (isMobile) {
-    window.location.href = link.replace(
-      "https://shopee.com.br",
-      "shopee://"
-    );
-
-    setTimeout(() => {
-      window.open(link, "_blank");
-    }, 1200);
-  } else {
-    window.open(link, "_blank");
-  }
-}
-
-renderProdutos();
-</script>
+function corrigirCategoriasAnt
