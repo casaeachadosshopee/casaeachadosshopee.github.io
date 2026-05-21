@@ -8,6 +8,100 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: radial-gradient(circle at top left, rgba(255, 107, 20, 0.18), transparent 32rem),
+                  linear-gradient(180deg, #0b1220 0%, #172234 45%, #101827 100%);
+      min-height: 100vh;
+    }
+
+    header {
+      background: rgba(10, 15, 28, 0.94) !important;
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    #pesquisaInput {
+      height: 52px;
+      border-radius: 16px !important;
+      border: 2px solid rgba(255,255,255,0.12);
+      outline: none;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+    }
+
+    #pesquisaInput:focus {
+      border-color: #ff6b14;
+      box-shadow: 0 0 0 4px rgba(255,107,20,0.18);
+    }
+
+    header a {
+      background: linear-gradient(135deg, #ff6b14, #ff8a1d) !important;
+      border-radius: 14px !important;
+      box-shadow: 0 10px 24px rgba(255,107,20,0.22);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    header a:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(255,107,20,0.32);
+    }
+
+    #adminPanel > div,
+    #loginAdmin > div {
+      background: rgba(15, 23, 42, 0.94) !important;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+    }
+
+    main section {
+      scroll-margin-top: 230px;
+    }
+
+    main section h2 {
+      display: inline-flex;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #ff6b14;
+      color: #ff8a1d !important;
+    }
+
+    .produto {
+      background: linear-gradient(180deg, #111827 0%, #0f172a 100%) !important;
+      border-radius: 18px !important;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 18px 45px rgba(0,0,0,0.32);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .produto:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255,107,20,0.45);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+    }
+
+    .produto img {
+      height: 260px;
+      background: #fff;
+    }
+
+    .produto button {
+      border-radius: 14px !important;
+      background: linear-gradient(135deg, #ff6b14, #ea580c) !important;
+      box-shadow: 0 12px 24px rgba(255,107,20,0.25);
+    }
+
+    footer {
+      background: #050816 !important;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    @media (max-width: 640px) {
+      header { position: static !important; }
+      .produto img { height: 230px; }
+    }
+  </style>
 </head>
 
 <body class="bg-gray-800 font-sans text-white">
@@ -15,7 +109,6 @@
 <header class="bg-gray-900 text-white py-5 px-4 shadow-md sticky top-0 z-50">
   <div class="max-w-6xl mx-auto flex items-center gap-3">
     <img src="CasaeAchadosshopee.png" class="h-14 w-auto bg-white rounded-lg p-1 shadow">
-
     <div>
       <h1 class="text-2xl font-bold">CasaeAchadosShopee</h1>
       <p class="text-sm text-gray-300">Melhores achados da Shopee com desconto 🔥</p>
@@ -23,12 +116,7 @@
   </div>
 
   <div class="max-w-6xl mx-auto mt-5">
-    <input
-      id="pesquisaInput"
-      onkeyup="pesquisar()"
-      placeholder="Pesquisar produtos..."
-      class="p-3 w-full rounded-xl text-black"
-    />
+    <input id="pesquisaInput" onkeyup="pesquisar()" placeholder="Pesquisar produtos..." class="p-3 w-full rounded-xl text-black"/>
   </div>
 
   <div class="max-w-6xl mx-auto mt-5 flex gap-3 overflow-auto pb-2">
@@ -43,17 +131,8 @@
 <section id="loginAdmin" class="max-w-md mx-auto px-4 mt-6 hidden">
   <div class="bg-gray-900 rounded-2xl shadow p-6 text-center">
     <h2 class="text-xl font-bold mb-4">Acesso Admin</h2>
-
-    <input
-      id="senha"
-      type="password"
-      placeholder="Digite a senha"
-      class="border p-2 rounded w-full mb-3 text-black"
-    />
-
-    <button onclick="verificarSenha()" class="bg-orange-500 text-white px-6 py-2 rounded-xl font-bold">
-      Entrar
-    </button>
+    <input id="senha" type="password" placeholder="Digite a senha" class="border p-2 rounded w-full mb-3 text-black"/>
+    <button onclick="verificarSenha()" class="bg-orange-500 text-white px-6 py-2 rounded-xl font-bold">Entrar</button>
   </div>
 </section>
 
@@ -74,13 +153,8 @@
       <option value="Organização">📦 Organização</option>
     </select>
 
-    <button onclick="addProduto()" class="bg-orange-500 text-white px-6 py-2 rounded-xl font-bold">
-      Adicionar Produto
-    </button>
-
-    <button onclick="corrigirCategoriasAntigas()" class="bg-green-500 text-white px-6 py-2 rounded-xl font-bold mt-3">
-      Corrigir Categorias
-    </button>
+    <button onclick="addProduto()" class="bg-orange-500 text-white px-6 py-2 rounded-xl font-bold">Adicionar Produto</button>
+    <button onclick="corrigirCategoriasAntigas()" class="bg-green-500 text-white px-6 py-2 rounded-xl font-bold mt-3">Corrigir Categorias</button>
   </div>
 </section>
 
@@ -121,6 +195,8 @@ const urlParams = new URLSearchParams(window.location.search);
 
 if (urlParams.get("painel") === "1579lz") {
   loginAdmin.classList.remove("hidden");
+  adminLogado = true;
+  adminPanel.classList.remove("hidden");
 }
 
 function verificarSenha() {
@@ -149,64 +225,23 @@ function pesquisar() {
 function sugerirCategoria(nome) {
   const texto = String(nome || "").toLowerCase();
 
-  if (
-    texto.includes("chaleira") ||
-    texto.includes("panela") ||
-    texto.includes("pote") ||
-    texto.includes("cozinha") ||
-    texto.includes("copo") ||
-    texto.includes("talher") ||
-    texto.includes("garrafa") ||
-    texto.includes("filtro") ||
-    texto.includes("frigideira") ||
-    texto.includes("escorredor")
-  ) {
+  if (texto.includes("chaleira") || texto.includes("panela") || texto.includes("pote") || texto.includes("copo") || texto.includes("talher") || texto.includes("garrafa") || texto.includes("filtro") || texto.includes("frigideira") || texto.includes("escorredor")) {
     return "Cozinha";
   }
 
-  if (
-    texto.includes("coberdrom") ||
-    texto.includes("cobertor") ||
-    texto.includes("lençol") ||
-    texto.includes("lencol") ||
-    texto.includes("travesseiro") ||
-    texto.includes("almofada") ||
-    texto.includes("edredom") ||
-    texto.includes("colcha")
-  ) {
+  if (texto.includes("coberdrom") || texto.includes("cobertor") || texto.includes("lençol") || texto.includes("lencol") || texto.includes("travesseiro") || texto.includes("almofada") || texto.includes("edredom") || texto.includes("colcha")) {
     return "Quarto";
   }
 
-  if (
-    texto.includes("banheiro") ||
-    texto.includes("toalha") ||
-    texto.includes("sabonete") ||
-    texto.includes("escova") ||
-    texto.includes("shampoo")
-  ) {
+  if (texto.includes("banheiro") || texto.includes("toalha") || texto.includes("sabonete") || texto.includes("escova") || texto.includes("shampoo")) {
     return "Banheiro";
   }
 
-  if (
-    texto.includes("planta") ||
-    texto.includes("vaso") ||
-    texto.includes("decor") ||
-    texto.includes("luminária") ||
-    texto.includes("luminaria") ||
-    texto.includes("quadro") ||
-    texto.includes("flor")
-  ) {
+  if (texto.includes("planta") || texto.includes("vaso") || texto.includes("decor") || texto.includes("luminária") || texto.includes("luminaria") || texto.includes("quadro") || texto.includes("flor")) {
     return "Decoração";
   }
 
-  if (
-    texto.includes("organizador") ||
-    texto.includes("suporte") ||
-    texto.includes("caixa") ||
-    texto.includes("prateleira") ||
-    texto.includes("cabide") ||
-    texto.includes("maquiagem")
-  ) {
+  if (texto.includes("organizador") || texto.includes("suporte") || texto.includes("caixa") || texto.includes("prateleira") || texto.includes("cabide") || texto.includes("maquiagem")) {
     return "Organização";
   }
 
@@ -215,12 +250,12 @@ function sugerirCategoria(nome) {
 
 function criarCardProduto(prod) {
   const card = document.createElement("div");
-  card.className = "produto bg-gray-900 rounded-2xl overflow-hidden shadow-lg hover:scale-105 transition duration-300";
+  card.className = "produto bg-gray-900 rounded-2xl overflow-hidden shadow-lg";
 
   const img = document.createElement("img");
   img.src = prod.imagem || "";
   img.alt = prod.nome || "Produto";
-  img.className = "w-full h-64 object-cover";
+  img.className = "w-full object-cover";
 
   const conteudo = document.createElement("div");
   conteudo.className = "p-4";
@@ -251,7 +286,6 @@ function criarCardProduto(prod) {
     botaoExcluir.onclick = function() {
       excluirProduto(prod.id);
     };
-
     conteudo.appendChild(botaoExcluir);
   }
 
@@ -262,11 +296,7 @@ function criarCardProduto(prod) {
 }
 
 function renderProdutos() {
-  produtosContainer.innerHTML = `
-    <div class="text-center text-xl">
-      Carregando...
-    </div>
-  `;
+  produtosContainer.innerHTML = `<div class="text-center text-xl">Carregando...</div>`;
 
   db.collection("produtos")
     .orderBy("criadoEm", "desc")
@@ -301,9 +331,7 @@ function renderProdutos() {
       });
 
       for (const categoria in categorias) {
-        if (categorias[categoria].length === 0) {
-          continue;
-        }
+        if (categorias[categoria].length === 0) continue;
 
         const section = document.createElement("section");
         section.id = categoria;
@@ -325,21 +353,12 @@ function renderProdutos() {
       }
 
       if (snapshot.empty) {
-        produtosContainer.innerHTML = `
-          <div class="text-center text-xl text-gray-300">
-            Nenhum produto cadastrado ainda.
-          </div>
-        `;
+        produtosContainer.innerHTML = `<div class="text-center text-xl text-gray-300">Nenhum produto cadastrado ainda.</div>`;
       }
 
       pesquisar();
     }, error => {
-      produtosContainer.innerHTML = `
-        <div class="text-center text-red-400 text-xl">
-          Erro ao carregar produtos. Verifique a chave do Firebase e as regras do Firestore.
-        </div>
-      `;
-
+      produtosContainer.innerHTML = `<div class="text-center text-red-400 text-xl">Erro ao carregar produtos. Verifique a chave do Firebase.</div>`;
       console.error(error);
     });
 }
@@ -365,7 +384,6 @@ function addProduto() {
     criadoEm: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
     alert("Produto publicado 🚀");
-
     document.getElementById("nome").value = "";
     document.getElementById("preco").value = "";
     document.getElementById("imagem").value = "";
@@ -389,11 +407,9 @@ function corrigirCategoriasAntigas() {
       const prod = doc.data();
 
       if (!prod.categoria || prod.categoria === "undefined") {
-        const categoria = sugerirCategoria(prod.nome);
-
         promessas.push(
           db.collection("produtos").doc(doc.id).update({
-            categoria: categoria
+            categoria: sugerirCategoria(prod.nome)
           })
         );
       }
