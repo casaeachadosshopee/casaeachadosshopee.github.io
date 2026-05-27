@@ -193,6 +193,18 @@ const adminPanel = document.getElementById("adminPanel");
 
 let adminLogado = false;
 
+const LISTA_CATEGORIAS = [
+  "Cozinha",
+  "Quarto",
+  "Banheiro",
+  "Decoração",
+  "Organização",
+  "Moda Feminina",
+  "Moda Masculina",
+  "Beleza",
+  "Eletrônicos"
+];
+
 document.addEventListener("keydown", function(e) {
   if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "a") {
     loginAdmin.classList.toggle("hidden");
@@ -304,12 +316,33 @@ function criarCardProduto(prod) {
   conteudo.appendChild(botaoOferta);
 
   if (adminLogado) {
+    const seletorCategoria = document.createElement("select");
+    seletorCategoria.className = "w-full mt-3 p-2 rounded-xl text-black font-bold";
+
+    LISTA_CATEGORIAS.forEach(categoria => {
+      const option = document.createElement("option");
+      option.value = categoria;
+      option.textContent = categoria;
+
+      if (categoria === prod.categoria) {
+        option.selected = true;
+      }
+
+      seletorCategoria.appendChild(option);
+    });
+
+    seletorCategoria.onchange = function() {
+      alterarCategoriaProduto(prod.id, seletorCategoria.value);
+    };
+
     const botaoExcluir = document.createElement("button");
     botaoExcluir.className = "block w-full mt-2 bg-red-500 text-white py-2 rounded-xl font-bold";
     botaoExcluir.textContent = "Excluir ❌";
     botaoExcluir.onclick = function() {
       excluirProduto(prod.id);
     };
+
+    conteudo.appendChild(seletorCategoria);
     conteudo.appendChild(botaoExcluir);
   }
 
@@ -428,26 +461,39 @@ function corrigirCategoriasAntigas() {
     return;
   }
 
+  if (!confirm("Deseja reorganizar todos os produtos automaticamente pelo nome?")) {
+    return;
+  }
+
   db.collection("produtos").get().then(snapshot => {
     const promessas = [];
 
     snapshot.forEach(doc => {
       const prod = doc.data();
 
-      if (!prod.categoria || prod.categoria === "undefined") {
-        promessas.push(
-          db.collection("produtos").doc(doc.id).update({
-            categoria: sugerirCategoria(prod.nome)
-          })
-        );
-      }
+      promessas.push(
+        db.collection("produtos").doc(doc.id).update({
+          categoria: sugerirCategoria(prod.nome)
+        })
+      );
     });
 
     Promise.all(promessas).then(() => {
-      alert("Categorias corrigidas com sucesso");
+      alert("Categorias reorganizadas com sucesso");
     });
   }).catch(error => {
-    alert("Erro ao corrigir categorias");
+    alert("Erro ao reorganizar categorias");
+    console.error(error);
+  });
+}
+
+function alterarCategoriaProduto(id, novaCategoria) {
+  db.collection("produtos").doc(id).update({
+    categoria: novaCategoria
+  }).then(() => {
+    alert("Categoria atualizada para " + novaCategoria);
+  }).catch(error => {
+    alert("Erro ao atualizar categoria");
     console.error(error);
   });
 }
