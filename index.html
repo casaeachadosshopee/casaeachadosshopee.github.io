@@ -120,11 +120,11 @@
   </div>
 
   <div class="max-w-6xl mx-auto mt-5 flex gap-3 overflow-auto pb-2">
-    <a href="#Cozinha" class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">🍳 Cozinha</a>
-    <a href="#Quarto" class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">🛏️ Quarto</a>
-    <a href="#Banheiro" class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">🚿 Banheiro</a>
-    <a href="#Decoração" class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">✨ Decoração</a>
     <a href="#Organização" class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">📦 Organização</a>
+    <a href="#Moda Feminina" class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">👗 Moda Feminina</a>
+    <a href="#Moda Masculina" class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">👕 Moda Masculina</a>
+    <a href="#Beleza" class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">💄 Beleza</a>
+    <a href="#Eletrônicos" class="bg-orange-500 px-4 py-2 rounded-xl whitespace-nowrap font-bold">🎧 Eletrônicos</a>
   </div>
 </header>
 
@@ -146,11 +146,11 @@
     <input id="link" placeholder="Link afiliado Shopee" class="border p-2 rounded w-full mb-2 text-black"/>
 
     <select id="categoria" class="border p-2 rounded w-full mb-4 text-black">
-      <option value="Cozinha">🍳 Cozinha</option>
-      <option value="Quarto">🛏️ Quarto</option>
-      <option value="Banheiro">🚿 Banheiro</option>
-      <option value="Decoração">✨ Decoração</option>
       <option value="Organização">📦 Organização</option>
+      <option value="Moda Feminina">👗 Moda Feminina</option>
+      <option value="Moda Masculina">👕 Moda Masculina</option>
+      <option value="Beleza">💄 Beleza</option>
+      <option value="Eletrônicos">🎧 Eletrônicos</option>
     </select>
 
     <button onclick="addProduto()" class="bg-orange-500 text-white px-6 py-2 rounded-xl font-bold">Adicionar Produto</button>
@@ -225,24 +225,73 @@ function pesquisar() {
 function sugerirCategoria(nome) {
   const texto = String(nome || "").toLowerCase();
 
-  if (texto.includes("chaleira") || texto.includes("panela") || texto.includes("pote") || texto.includes("copo") || texto.includes("talher") || texto.includes("garrafa") || texto.includes("filtro") || texto.includes("frigideira") || texto.includes("escorredor")) {
-    return "Cozinha";
-  }
-
-  if (texto.includes("coberdrom") || texto.includes("cobertor") || texto.includes("lençol") || texto.includes("lencol") || texto.includes("travesseiro") || texto.includes("almofada") || texto.includes("edredom") || texto.includes("colcha")) {
-    return "Quarto";
-  }
-
-  if (texto.includes("banheiro") || texto.includes("toalha") || texto.includes("sabonete") || texto.includes("escova") || texto.includes("shampoo")) {
-    return "Banheiro";
-  }
-
-  if (texto.includes("planta") || texto.includes("vaso") || texto.includes("decor") || texto.includes("luminária") || texto.includes("luminaria") || texto.includes("quadro") || texto.includes("flor")) {
-    return "Decoração";
-  }
-
-  if (texto.includes("organizador") || texto.includes("suporte") || texto.includes("caixa") || texto.includes("prateleira") || texto.includes("cabide") || texto.includes("maquiagem")) {
+  if (
+    texto.includes("organizador") ||
+    texto.includes("organização") ||
+    texto.includes("organizacao") ||
+    texto.includes("suporte") ||
+    texto.includes("caixa") ||
+    texto.includes("prateleira") ||
+    texto.includes("cabide") ||
+    texto.includes("pote")
+  ) {
     return "Organização";
+  }
+
+  if (
+    texto.includes("vestido") ||
+    texto.includes("blusa") ||
+    texto.includes("saia") ||
+    texto.includes("cropped") ||
+    texto.includes("bolsa") ||
+    texto.includes("sandália") ||
+    texto.includes("sandalia") ||
+    texto.includes("feminina") ||
+    texto.includes("feminino")
+  ) {
+    return "Moda Feminina";
+  }
+
+  if (
+    texto.includes("camiseta") ||
+    texto.includes("bermuda") ||
+    texto.includes("calça masculina") ||
+    texto.includes("calca masculina") ||
+    texto.includes("boné") ||
+    texto.includes("bone") ||
+    texto.includes("masculina") ||
+    texto.includes("masculino")
+  ) {
+    return "Moda Masculina";
+  }
+
+  if (
+    texto.includes("maquiagem") ||
+    texto.includes("batom") ||
+    texto.includes("base") ||
+    texto.includes("perfume") ||
+    texto.includes("creme") ||
+    texto.includes("skin care") ||
+    texto.includes("skincare") ||
+    texto.includes("beleza")
+  ) {
+    return "Beleza";
+  }
+
+  if (
+    texto.includes("fone") ||
+    texto.includes("carregador") ||
+    texto.includes("cabo") ||
+    texto.includes("smartwatch") ||
+    texto.includes("relógio") ||
+    texto.includes("relogio") ||
+    texto.includes("caixa de som") ||
+    texto.includes("eletrônico") ||
+    texto.includes("eletronico") ||
+    texto.includes("eletrônicos") ||
+    texto.includes("eletronicos")
+  ) {
+    return "Eletrônicos";
   }
 
   return "Organização";
@@ -304,11 +353,11 @@ function renderProdutos() {
       produtosContainer.innerHTML = "";
 
       const categorias = {
-        "Cozinha": [],
-        "Quarto": [],
-        "Banheiro": [],
-        "Decoração": [],
-        "Organização": []
+        "Organização": [],
+        "Moda Feminina": [],
+        "Moda Masculina": [],
+        "Beleza": [],
+        "Eletrônicos": []
       };
 
       snapshot.forEach(doc => {
